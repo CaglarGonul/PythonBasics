@@ -22,6 +22,9 @@ def is_valid_word(wordlist, word):
     >>> is_valid_word(['ANT', 'BOX', 'SOB', 'TO'], 'TO')
     True
     '''
+    if(word in wordlist):
+        return True
+    return False
 
 
 def make_str_from_row(board, row_index):
@@ -33,6 +36,7 @@ def make_str_from_row(board, row_index):
     >>> make_str_from_row([['A', 'N', 'T', 'T'], ['X', 'S', 'O', 'B']], 0)
     'ANTT'
     '''
+    return ''.join(board[row_index])
 
 
 def make_str_from_column(board, column_index):
@@ -44,6 +48,10 @@ def make_str_from_column(board, column_index):
     >>> make_str_from_column([['A', 'N', 'T', 'T'], ['X', 'S', 'O', 'B']], 1)
     'NS'
     '''
+    lstr=""
+    for chrlist in board:
+        lstr = lstr + chrlist[column_index]
+    return lstr
 
 
 def board_contains_word_in_row(board, word):
@@ -78,6 +86,11 @@ def board_contains_word_in_column(board, word):
     >>> board_contains_word_in_column([['A', 'N', 'T', 'T'], ['X', 'S', 'O', 'B']], 'NO')
     False
     '''
+    for column_index in range(len(board[0])):
+        if word in make_str_from_column(board,column_index):
+            return True
+
+    return False
 
 
 def board_contains_word(board, word):
@@ -90,6 +103,10 @@ def board_contains_word(board, word):
     >>> board_contains_word([['A', 'N', 'T', 'T'], ['X', 'S', 'O', 'B']], 'ANT')
     True
     '''
+    for row_index in range(len(board)):
+        if board_contains_word_in_column(board,word) or board_contains_word_in_row(board,word) :  
+            return True
+    return False
 
 
 def word_score(word):
@@ -105,6 +122,14 @@ def word_score(word):
     >>> word_score('DRUDGERY')
     16
     '''
+    if len(word)<=2:
+        return 0
+    if len(word)<=6:
+        return len(word)*1
+    if len(word)<=9:
+        return len(word)*2
+    if len(word)>=10:
+        return len(word)*3
 
 
 def update_score(player_info, word):
@@ -115,7 +140,7 @@ def update_score(player_info, word):
 
     >>> update_score(['Jonathan', 4], 'ANT')
     '''
-
+    player_info[1] = player_info[1] + word_score(word)
 
 def num_words_on_board(board, words):
     '''(list of list of str, list of str) -> int
@@ -125,7 +150,12 @@ def num_words_on_board(board, words):
     >>> num_words_on_board([['A', 'N', 'T', 'T'], ['X', 'S', 'O', 'B']], ['ANT', 'BOX', 'SOB', 'TO'])
     3
     '''
+    count=0
+    for word in words:
+        if board_contains_word(board,word):
+            count = count + 1
 
+    return count
 
 def read_words(words_file):
     ''' (file open for reading) -> list of str
@@ -136,7 +166,13 @@ def read_words(words_file):
     Precondition: Each line of the file contains a word in uppercase characters
     from the standard English alphabet.
     '''
-
+    strList = []
+    line = words_file.readline()
+    while line != "":
+        strList.append(line.replace('\n',''))
+        line = words_file.readline()
+    words_file.close()
+    return strList
 
 def read_board(board_file):
     ''' (file open for reading) -> list of list of str
@@ -144,4 +180,11 @@ def read_board(board_file):
     Return a board read from open file board_file. The board file will contain
     one row of the board per line. Newlines are not included in the board.
     '''
-
+    board = []
+    line = board_file.readline()
+    while line != "":
+        board.append(list(line.replace('\n','')))
+        line = board_file.readline()
+    board_file.close()
+    return board
+    
